@@ -1,0 +1,54 @@
+* { box-sizing:border-box; margin:0; padding:0; }
+    body { font-family: 'Georgia', serif; color: #0d1f3a; background: white; }
+    .page { max-width: 700px; margin: 0 auto; padding: 36px 40px; }
+
+    /* Header */
+    .header { display:flex; align-items:flex-start; justify-content:space-between; padding-bottom:20px; border-bottom:3px solid #0a1628; margin-bottom:24px; }
+    .header-logo img { height:64px; object-fit:contain; }
+    .header-right { text-align:right; }
+    .header-title { font-size:18px; font-weight:700; color:#0a1628; letter-spacing:-.3px; }
+    .header-org   { font-size:11px; color:#555577; margin-top:2px; }
+    .header-folio { margin-top:8px; }
+    .header-folio span { background:#f0f4fb; border:1px solid #dce6f5; border-radius:4px; padding:3px 9px; font-family:monospace; font-size:11px; color:#0a1628; font-weight:700; }
+    .header-emision { font-size:10px; color:#888; margin-top:5px; }
+
+    /* Badges */
+    .tipo-badge { display:inline-block; padding:5px 14px; border-radius:20px; font-size:12px; font-weight:700; margin-bottom:6px; letter-spacing:.3px; }
+    .tipo-hospedaje { background:#e8eaf6; color:#283593; border:1px solid #c5cae9; }
+    .tipo-daypass   { background:#fffde7; color:#5c3d00; border:1px solid #f5c518; }
+
+    /* Socio */
+    .socio-block { background:#f4f7ff; border-radius:10px; padding:16px 20px; margin-bottom:20px; border-left:5px solid #0a1628; }
+    .socio-name  { font-size:20px; font-weight:700; color:#0a1628; line-height:1.2; }
+    .socio-code  { font-size:12px; color:#555577; margin-top:4px; font-family:monospace; }
+    .socio-status { margin-top:8px; }
+
+    /* Info grid */
+    .info-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:20px; }
+    .info-card { background:#f5f5f5; border:1px solid #dcdce8; border-radius:8px; padding:12px 14px; }
+    .info-label { font-size:9px; font-weight:700; color:#555577; text-transform:uppercase; letter-spacing:.8px; margin-bottom:4px; }
+    .info-value { font-size:14px; font-weight:600; color:#0a1628; line-height:1.3; }
+    .info-card.dark { background:#0a1628; border-color:#0a1628; }
+    .info-card.dark .info-label { color:rgba(255,255,255,.5); }
+    .info-card.dark .info-value { color:white; }
+    .info-card.wide { grid-column:1/-1; }
+
+    /* Notas */
+    .notas-block { border:1.5px dashed #c8d8ee; border-radius:8px; padding:14px 16px; margin-bottom:20px; background:#fafcff; }
+    .notas-label { font-size:9px; font-weight:700; color:#555577; text-transform:uppercase; letter-spacing:.8px; margin-bottom:6px; }
+    .notas-text  { font-size:13px; color:#0d1f3a; line-height:1.6; }
+
+    /* Firmas */
+    .sigs { display:grid; grid-template-columns:1fr 1fr; gap:60px; margin-top:40px; padding-top:10px; }
+    .sig-box { text-align:center; }
+    .sig-line { border-top:1.5px solid #0a1628; padding-top:6px; font-size:10px; color:#555577; margin-top:50px; }
+
+    /* Footer */
+    .footer { margin-top:28px; font-size:9px; color:#aaa; text-align:center; border-top:1px solid #dcdce8; padding-top:12px; line-height:1.7; }
+    .footer strong { color:#777; }
+
+    @media print {
+      body { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+      .page { padding:20px 24px; max-width:100%; }
+      .no-print { display:none !important; }
+    }

@@ -1,0 +1,1096 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <!-- Seguridad -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https://vcaofamerica.com; connect-src 'self' https://sbqasynhthoqtkiepzzv.supabase.co https://wa.me; frame-ancestors 'none'; base-uri 'self'; form-action 'self';"/>
+  <meta http-equiv="X-Content-Type-Options" content="nosniff"/>
+  <meta http-equiv="X-Frame-Options" content="DENY"/>
+  <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin"/>
+  <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=()"/>
+  <meta name="mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="Cartera VCA"/>
+  <meta name="theme-color" content="#111111"/>
+  <link rel="manifest" href="manifest.json"/>
+  <link rel="apple-touch-icon" href="icon-192.png"/>
+  <title>Cartera VCA</title>
+  <!-- Fuentes -->
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+
+  <!-- Estilos -->
+  <link rel="stylesheet" href="css/app.css"/>
+  <link rel="stylesheet" href="css/responsive.css"/>
+
+  <!-- Librerías externas -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+</head>
+<body>
+
+<div id="accessToast">🔐 Solo el usuario Root puede ver el reporte</div>
+
+<div class="screen active" id="screenLogin">
+  <div class="lock-hero" style="padding-bottom:0;min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:32px 20px;">
+    <div style="width:100%;max-width:400px;display:flex;flex-direction:column;align-items:center;gap:0;">
+
+      <div style="text-align:center;margin-bottom:28px;">
+        <div class="lock-logo-frame" style="margin:0 auto 18px;">
+          <img src="https://vcaofamerica.com/wp-content/uploads/2016/07/logo-png.png" alt="VCA"
+            onerror="this.style.display='none';this.nextElementSibling.style.display='block'"/>
+          <span class="logo-text-fallback" style="display:none;">VCA</span>
+        </div>
+        <h2 style="font-family:'Cormorant Garamond',serif;font-size:1.8rem;font-weight:700;color:white;margin-bottom:6px;">Cartera <span style="color:var(--gold-lt);">Activa</span></h2>
+        <p style="font-size:.8rem;color:rgba(255,255,255,.45);">Vacation Club of America · Acceso Interno</p>
+      </div>
+
+      <div style="width:100%;background:var(--surface);border-radius:var(--r20);padding:28px 24px 24px;box-shadow:0 24px 60px rgba(0,0,0,.45);">
+        <div style="font-size:.68rem;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:1px;margin-bottom:18px;text-align:center;">Iniciar sesión</div>
+
+        <div style="display:flex;flex-direction:column;gap:14px;">
+          <div style="display:flex;flex-direction:column;gap:6px;">
+            <label style="font-size:.68rem;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.7px;">Usuario o correo electrónico</label>
+            <input id="loginEmail" type="text"
+              placeholder="Usuario o correo electrónico"
+              style="width:100%;height:48px;padding:0 16px;font-family:'Outfit',sans-serif;font-size:.95rem;color:var(--text);background:var(--mist);border:1.5px solid var(--border);border-radius:var(--r10);outline:none;box-sizing:border-box;-webkit-appearance:none;"
+              autocomplete="username" autocapitalize="off" autocorrect="off" spellcheck="false"
+              onkeydown="if(event.key==='Enter')document.getElementById('loginPassword').focus()"
+              oninput="document.getElementById('loginErr').classList.remove('on')"/>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:6px;">
+            <label style="font-size:.68rem;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.7px;">Contraseña</label>
+            <input id="loginPassword" type="password"
+              placeholder="••••••••"
+              style="width:100%;height:48px;padding:0 16px;font-family:'Outfit',sans-serif;font-size:.95rem;color:var(--text);background:var(--mist);border:1.5px solid var(--border);border-radius:var(--r10);outline:none;box-sizing:border-box;-webkit-appearance:none;"
+              autocomplete="current-password"
+              onkeydown="if(event.key==='Enter')doLogin()"
+              oninput="document.getElementById('loginErr').classList.remove('on')"/>
+          </div>
+
+          <p class="lock-err" id="loginErr" style="text-align:center;margin:0;"></p>
+
+          <button id="loginBtn" onclick="doLogin()"
+            style="width:100%;height:52px;background:linear-gradient(135deg,var(--navy),var(--sky));color:white;border:none;border-radius:var(--r14);font-family:'Outfit',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;box-shadow:0 4px 22px rgba(40,53,147,.4);transition:transform .1s,opacity .1s;margin-top:2px;"
+            onmousedown="this.style.transform='scale(.98)'" onmouseup="this.style.transform=''">
+            Iniciar sesión
+          </button>
+        </div>
+
+        <div style="margin-top:20px;padding-top:20px;border-top:1px solid var(--border);">
+          <button onclick="showScreen('screenClientLogin')"
+            style="width:100%;display:flex;align-items:center;justify-content:center;gap:10px;padding:14px 16px;background:linear-gradient(135deg,#ecf8f2,#d4f0e2);border:1.5px solid #b3dfc6;border-radius:var(--r14);cursor:pointer;font-family:'Outfit',sans-serif;transition:transform .1s;"
+            onmousedown="this.style.transform='scale(.98)'" onmouseup="this.style.transform=''">
+            <span style="font-size:1.3rem;">🏨</span>
+            <div style="text-align:left;">
+              <div style="font-size:.88rem;font-weight:700;color:#166842;">Soy socio — Acceder al portal</div>
+              <div style="font-size:.72rem;color:#2e7d32;margin-top:1px;">Reservas y estado de membresía</div>
+            </div>
+            <span style="color:#166842;font-size:1.1rem;margin-left:auto;">›</span>
+          </button>
+        </div>
+      </div>
+
+      <p style="font-size:.7rem;color:rgba(255,255,255,.3);text-align:center;margin-top:20px;line-height:1.6;">
+        Acceso seguro con Security Auth.<br>Licencia MT Code 2026.
+      </p>
+    </div>
+  </div>
+</div>
+
+<div class="screen" id="screenMain">
+  <div class="main-hero">
+    <div class="hero-inner">
+      <div class="menu-wrap">
+        <div class="menu-btn" onclick="toggleMenu(event)">☰</div>
+        <div class="menu-dropdown" id="menuDropdown">
+          <div class="menu-item" onclick="goTo('report')"><span>📊</span> Reporte</div>
+          <div class="menu-item config-item" id="menuDashBtn" onclick="goTo('dashboard')" style="display:none;"><span>🏠</span> Dashboard</div>
+          <div class="menu-item" onclick="goTo('reservations')"><span>🏨</span> Reservas <span id="pendingResBadge" style="display:none;background:#b53326;color:white;border-radius:10px;padding:1px 7px;font-size:.65rem;font-weight:800;margin-left:4px;"></span></div>
+          <div class="menu-item config-item" id="menuConfigBtn" onclick="goTo('config')"><span>⚙️</span> Config</div>
+          <div class="menu-item" onclick="goTo('changepass')"><span>🔑</span> Cambiar contraseña</div>
+        </div>
+      </div>
+
+      <div class="hero-logo-block">
+        <div class="logo-frame">
+          <img src="https://vcaofamerica.com/wp-content/uploads/2016/07/logo-png.png"
+            alt="Vacation Club of America"
+            onerror="this.style.display='none';this.nextElementSibling.style.display='block'"/>
+          <span class="logo-text-fallback">Vacation Club of America</span>
+        </div>
+      </div>
+
+      <div class="hero-tagline">
+        <h1>Cartera <em>Activa</em></h1>
+        <p>Sistema de consulta de referencias · VCA</p>
+      </div>
+
+      <div class="hero-info-row">
+        <div class="records-chip" id="recordsChip"></div>
+        <div id="userChip" onclick="logout()" title="Cambiar usuario"
+          style="display:none;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);border-radius:20px;padding:6px 12px 6px 7px;cursor:pointer;align-items:center;gap:7px;font-size:.72rem;font-weight:600;color:rgba(255,255,255,.9);">
+          <span id="userAvatar" style="width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.68rem;font-weight:800;color:white;"></span>
+          <span id="userChipName"></span>
+          <span style="opacity:.6;font-size:.7rem;">⇄</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="excelUpdateBanner">
+    <span id="excelUpdateMsg">☁️ Hay un Excel nuevo disponible</span>
+    <button class="update-reload-btn" onclick="reloadFromCloud()">Actualizar ahora</button>
+    <button class="update-dismiss-btn" onclick="dismissUpdate()">✕</button>
+  </div>
+
+  <div id="installBanner">
+    <span>📲 <strong>Instalar como app</strong></span>
+    <button class="ib-btn" id="installBtn">Instalar</button>
+    <button class="ib-x" id="closeBanner">✕</button>
+  </div>
+
+  <div class="body-scroll">
+    <div class="upload-card">
+      <label class="upload-lbl" for="fileInput">
+        <div class="upload-ico">📊</div>
+        <div class="upload-txt">
+          <strong>Cargar archivo Excel</strong>
+          <span>Toca para seleccionar .xlsx / .xls</span>
+        </div>
+        <div class="upload-arr">›</div>
+      </label>
+      <input type="file" id="fileInput" accept=".xlsx,.xls"/>
+      <div class="status-pill" id="statusPill">
+        <span id="statusIcon"></span>&nbsp;<span id="statusText"></span>
+      </div>
+    </div>
+
+    <div class="search-card">
+      <span class="field-lbl">Número de referencia</span>
+      <div class="search-row">
+        <input type="text" id="searchInput"
+          placeholder="Ej: 1-9-16562 ó 16562"
+          inputmode="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+        <button id="searchBtn" disabled>🔍</button>
+      </div>
+      <p class="hint">Referencia completa o solo el número final.</p>
+      <div id="histSection" style="display:none">
+        <p class="hist-lbl">Recientes</p>
+        <div class="hist-wrap" id="histWrap"></div>
+      </div>
+    </div>
+
+    <div class="empty-state" id="emptyState">
+      <div class="empty-ring">🔎</div>
+      <h3>Busca una referencia</h3>
+      <p>Carga tu archivo Excel y escribe<br>un número de referencia para comenzar.</p>
+    </div>
+
+    <div id="pendingResPanel" style="display:none;background:var(--surface);border-radius:var(--r20);border:1.5px solid #f0d880;box-shadow:0 4px 20px rgba(122,88,0,.12);overflow:hidden;">
+      <div style="background:linear-gradient(135deg,#7a5800,#b8860b);padding:14px 18px 12px;display:flex;align-items:center;justify-content:space-between;">
+        <div>
+          <div style="font-size:.65rem;font-weight:700;color:rgba(255,255,255,.6);text-transform:uppercase;letter-spacing:1px;margin-bottom:2px;">Requieren atención</div>
+          <div style="font-family:'Cormorant Garamond',serif;font-size:1rem;font-weight:700;color:white;">⏳ Reservas pendientes</div>
+        </div>
+        <span id="pendingResPanelCount" style="background:rgba(255,255,255,.2);color:white;border-radius:20px;padding:4px 12px;font-size:.8rem;font-weight:800;"></span>
+      </div>
+      <div id="pendingResItems" style="padding:12px 16px;display:flex;flex-direction:column;gap:10px;"></div>
+      <div style="padding:0 16px 14px;">
+        <button onclick="goToReservations()" style="width:100%;padding:11px;background:linear-gradient(135deg,#7a5800,#b8860b);color:white;border:none;border-radius:12px;font-family:'Outfit',sans-serif;font-size:.85rem;font-weight:700;cursor:pointer;">
+          Ver todas las reservas →
+        </button>
+      </div>
+    </div>
+
+    <div id="statsPanel" style="display:none;background:var(--surface);border-radius:var(--r20);border:1.5px solid var(--border);box-shadow:var(--sh2);overflow:hidden;">
+      <div style="background:linear-gradient(135deg,var(--ink),var(--navy));padding:14px 18px 12px;display:flex;align-items:center;justify-content:space-between;">
+        <div style="font-family:'Cormorant Garamond',serif;font-size:1rem;font-weight:700;color:white;">Estado de la cartera</div>
+        <div id="statsPanelCount" style="font-size:.7rem;font-weight:700;color:var(--gold-lt);letter-spacing:.5px;"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0;">
+        <div style="padding:14px 12px;text-align:center;border-right:1px solid var(--border);">
+          <div style="font-size:1.5rem;font-weight:800;color:#166842;" id="stAlDia">—</div>
+          <div style="font-size:.62rem;font-weight:700;color:#166842;text-transform:uppercase;letter-spacing:.5px;margin-top:3px;">🟢 Al día</div>
+        </div>
+        <div style="padding:14px 12px;text-align:center;border-right:1px solid var(--border);">
+          <div style="font-size:1.5rem;font-weight:800;color:#7a5800;" id="stProximo">—</div>
+          <div style="font-size:.62rem;font-weight:700;color:#7a5800;text-transform:uppercase;letter-spacing:.5px;margin-top:3px;">🟡 Por vencer</div>
+        </div>
+        <div style="padding:14px 12px;text-align:center;">
+          <div style="font-size:1.5rem;font-weight:800;color:#b53326;" id="stVencido">—</div>
+          <div style="font-size:.62rem;font-weight:700;color:#b53326;text-transform:uppercase;letter-spacing:.5px;margin-top:3px;">🔴 Vencido</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="results-wrap" id="resultsWrap" style="display:none">
+      <div class="result-bar" id="resultBar"></div>
+      <div id="resultCards"></div>
+    </div>
+
+    <!-- Dashboard admin - métricas en tiempo real -->
+    <div id="adminDashboard" style="display:none;flex-direction:column;gap:12px;">
+
+      <!-- KPIs -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;" id="dashKpis"></div>
+
+      <!-- Socios próximos a vencer -->
+      <div style="background:var(--surface);border-radius:var(--r20);border:1.5px solid #f0d880;box-shadow:var(--sh);overflow:hidden;" id="dashVencimientoCard">
+        <div style="background:linear-gradient(135deg,#7a5800,#b8860b);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;">
+          <div style="font-family:'Cormorant Garamond',serif;font-size:.95rem;font-weight:700;color:white;">⏰ Próximos a vencer (30 días)</div>
+          <span id="dashVencimientoCount" style="background:rgba(255,255,255,.2);color:white;border-radius:20px;padding:3px 10px;font-size:.75rem;font-weight:800;"></span>
+        </div>
+        <div id="dashVencimientoList" style="padding:12px 14px;display:flex;flex-direction:column;gap:8px;"></div>
+      </div>
+
+      <!-- Socios en mora -->
+      <div style="background:var(--surface);border-radius:var(--r20);border:1.5px solid #f4beb8;box-shadow:var(--sh);overflow:hidden;" id="dashMoraCard">
+        <div style="background:linear-gradient(135deg,#8b0000,#b53326);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;">
+          <div style="font-family:'Cormorant Garamond',serif;font-size:.95rem;font-weight:700;color:white;">🔴 Socios en mora</div>
+          <span id="dashMoraCount" style="background:rgba(255,255,255,.2);color:white;border-radius:20px;padding:3px 10px;font-size:.75rem;font-weight:800;"></span>
+        </div>
+        <div id="dashMoraList" style="padding:12px 14px;display:flex;flex-direction:column;gap:8px;"></div>
+      </div>
+
+      <!-- Pagos del mes -->
+      <div style="background:var(--surface);border-radius:var(--r20);border:1.5px solid #b3dfc6;box-shadow:var(--sh);overflow:hidden;">
+        <div style="background:linear-gradient(135deg,#166842,#2e7d32);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;">
+          <div style="font-family:'Cormorant Garamond',serif;font-size:.95rem;font-weight:700;color:white;">💰 Pagos registrados este mes</div>
+          <button onclick="loadDashboard()" style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);border-radius:8px;color:white;padding:4px 10px;font-size:.7rem;font-weight:700;cursor:pointer;font-family:'Outfit',sans-serif;">🔄</button>
+        </div>
+        <div id="dashPagosList" style="padding:12px 14px;display:flex;flex-direction:column;gap:6px;"></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="screen" id="screenReport">
+  <div class="report-hero">
+    <div class="report-hero-inner">
+      <div class="report-top-row">
+        <div class="r-logo-pill">
+          <img src="https://vcaofamerica.com/wp-content/uploads/2016/07/logo-png.png" alt="VCA"
+            onerror="this.style.display='none'"/>
+        </div>
+        <button class="back-btn" onclick="showScreen('screenMain')">← Volver</button>
+      </div>
+      <div class="report-hero-text">
+        <h2 id="reportTitle">Reporte <em>Global</em></h2>
+        <p id="reportDate">Cargando…</p>
+        <div class="sync-badge warn" id="syncBadge">
+          <span class="sync-dot"></span> Configurar Supabase
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="report-body">
+    <div class="tab-nav">
+      <button class="tab-btn active" id="tab-consultas" onclick="switchTab('consultas')">📊 Consultas</button>
+    </div>
+
+    <div class="tab-pane active" id="pane-consultas">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="s-lbl">Total consultas</div>
+          <div class="s-val" id="statTotal">—</div>
+          <div class="s-sub" id="statTotalSub">todos los usuarios</div>
+        </div>
+        <div class="stat-card">
+          <div class="s-lbl">Membresías encontradas</div>
+          <div class="s-val" id="statUnique" style="color:#2e7d32;">—</div>
+          <div class="s-sub">únicas</div>
+        </div>
+        <div class="stat-card">
+          <div class="s-lbl">No encontradas</div>
+          <div class="s-val" id="statNotFound" style="color:#b53326;">—</div>
+          <div class="s-sub">sin resultado</div>
+        </div>
+        <div class="stat-card">
+          <div class="s-lbl">Excel en nube</div>
+          <div class="s-val" id="statCloud" style="font-size:1.4rem;">—</div>
+          <div class="s-sub" id="statCloudSub">verificando…</div>
+        </div>
+      </div>
+
+      <div class="filter-card">
+        <div class="filter-title">🔍 Filtrar reporte</div>
+        <div class="filter-row" id="filterUserRow">
+          <div class="filter-group">
+            <label class="filter-lbl">Por usuario</label>
+            <select id="filterUser" onchange="applyFilters()">
+              <option value="">Todos los usuarios</option>
+              <option value="Garita">Garita</option>
+              <option value="Restaurante">Restaurante</option>
+              <option value="Root">Root</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label class="filter-lbl">Por resultado</label>
+            <select id="filterResult" onchange="applyFilters()">
+              <option value="">Todos</option>
+              <option value="found">✅ Encontradas</option>
+              <option value="notfound">❌ No encontradas</option>
+            </select>
+          </div>
+        </div>
+        <div class="filter-row">
+          <div class="filter-group">
+            <label class="filter-lbl">Desde</label>
+            <input type="date" id="filterFrom" onchange="applyFilters()"/>
+          </div>
+          <div class="filter-group">
+            <label class="filter-lbl">Hasta</label>
+            <input type="date" id="filterTo" onchange="applyFilters()"/>
+          </div>
+        </div>
+        <div class="filter-row">
+          <div class="filter-group" style="flex:2;">
+            <label class="filter-lbl">Buscar referencia o socio</label>
+            <input type="text" id="filterSearch" placeholder="Ej: 16562 o nombre…" oninput="applyFilters()" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+          </div>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;">
+          <span class="filter-count" id="filterCount"></span>
+          <button class="filter-clear-btn" onclick="clearFilters()">✕ Limpiar filtros</button>
+        </div>
+      </div>
+
+      <button class="refresh-btn" onclick="loadReport()">🔄 Actualizar reporte</button>
+
+      <div id="configNotice" class="config-notice" style="display:none;">
+        <strong>⚙️ Configuración requerida</strong>
+        Agrega las credenciales de Supabase en el archivo.
+      </div>
+
+      <div class="sec-title">Historial de consultas</div>
+      <div class="log-list" id="logList"></div>
+      <div class="action-row" id="reportActions">
+        <button class="pdf-btn" id="btnExportPDF" onclick="exportPDF()">📄 Descargar PDF</button>
+        <button class="print-btn" id="btnPrint" onclick="printReport()">🖨 Imprimir</button>
+      </div>
+      <button class="danger-btn" onclick="clearReport()">🗑 Eliminar todo el historial</button>
+    </div>
+  </div>
+</div>
+
+<div class="screen" id="screenReservations">
+  <div class="main-hero" style="padding-bottom:0;">
+    <div style="position:relative;z-index:2;padding-bottom:44px;">
+      <div class="hero-logo-block" style="margin-bottom:16px;">
+        <div class="logo-frame">
+          <img src="https://vcaofamerica.com/wp-content/uploads/2016/07/logo-png.png"
+            alt="Vacation Club of America"
+            onerror="this.style.display='none';this.nextElementSibling.style.display='block'"/>
+          <span class="logo-text-fallback">Vacation Club of America</span>
+        </div>
+      </div>
+      <div class="hero-tagline" style="margin-bottom:18px;">
+        <h1>Reservaciones <em>VCA</em></h1>
+        <p>Day Pass · Estancias · Hospedaje</p>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <button class="back-btn" onclick="showScreen('screenMain')">← Volver</button>
+        <div style="display:flex;gap:8px;">
+          <button class="res-tab-hero-btn active" id="htab-nueva" onclick="switchResTab('nueva')">Nueva reserva</button>
+          <button class="res-tab-hero-btn" id="htab-lista" onclick="switchResTab('lista')">Historial</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="body-scroll">
+    <div class="tab-pane active" id="pane-res-nueva" style="display:flex;flex-direction:column;gap:14px;">
+
+      <div class="res-step-header">
+        <div class="res-step-num">1</div>
+        <div>
+          <div class="res-step-title">Buscar socio</div>
+          <div class="res-step-sub">Por referencia, código o nombre completo</div>
+        </div>
+      </div>
+
+      <div class="res-search-wrap">
+        <span class="res-search-label">Referencia o nombre del socio</span>
+        <div class="res-search-row">
+          <input class="res-search-input" type="text" id="resSearchSocio"
+            placeholder="Ej: 1-9-16562 · 16562 · Nombre..."
+            inputmode="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+          <button class="res-search-btn" id="resBuscarBtn" onclick="searchSocioForRes()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          </button>
+        </div>
+        <p class="res-search-hint">Referencia completa, número final o nombre del socio</p>
+      </div>
+
+      <div id="resSocioInfo" style="display:none;"></div>
+
+      <div id="resFormContainer" style="display:none;flex-direction:column;gap:14px;">
+        <div class="res-step-header">
+          <div class="res-step-num" style="background:linear-gradient(135deg,var(--gold),#d4a017);">2</div>
+          <div>
+            <div class="res-step-title">Datos del hospedaje</div>
+            <div class="res-step-sub">Selecciona hotel y completa la información</div>
+          </div>
+        </div>
+
+        <div class="tipo-selector">
+          <button class="tipo-btn active" data-tipo="Hospedaje" onclick="selectTipo(this)">
+            <span class="tipo-icon">🏨</span>
+            <span class="tipo-label">Hospedaje</span>
+            <span class="tipo-sub">Estadía con noche</span>
+          </button>
+          <button class="tipo-btn" data-tipo="Day Pass" onclick="selectTipo(this)">
+            <span class="tipo-icon">☀️</span>
+            <span class="tipo-label">Day Pass</span>
+            <span class="tipo-sub">Acceso por el día</span>
+          </button>
+        </div>
+
+        <div class="hotel-grid">
+          <button class="hotel-card active" onclick="selectHotel(this,'Amatique Bay Hotel')">
+            <div class="hotel-icon">🏖️</div>
+            <div class="hotel-name">Amatique Bay</div>
+            <div class="hotel-sub">Puerto Barrios</div>
+          </button>
+          <button class="hotel-card" onclick="selectHotel(this,'Clarion Suite')">
+            <div class="hotel-icon">🏙️</div>
+            <div class="hotel-name">Clarion Suite</div>
+            <div class="hotel-sub">Guatemala</div>
+          </button>
+          <button class="hotel-card" onclick="selectHotel(this,'Cayman Suite')">
+            <div class="hotel-icon">🌊</div>
+            <div class="hotel-name">Cayman Suite</div>
+            <div class="hotel-sub">Livingston</div>
+          </button>
+        </div>
+        <input type="hidden" id="resHotel" value="Amatique Bay Hotel"/>
+
+        <div class="res-form-card">
+          <div class="res-form-grid">
+            <div class="res-form-group">
+              <label class="res-form-label">Fecha de entrada</label>
+              <input class="res-form-input" type="date" id="resFecha"/>
+            </div>
+            <div class="res-form-group" id="resFechaSalidaGroup">
+              <label class="res-form-label">Fecha de salida</label>
+              <input class="res-form-input" type="date" id="resFechaSalida"/>
+            </div>
+            <div class="res-form-group">
+              <label class="res-form-label">Reservado por</label>
+              <input class="res-form-input" type="text" id="resQuien" placeholder="Nombre de quien reserva"/>
+            </div>
+            <div class="res-form-group">
+              <label class="res-form-label">N° de personas</label>
+              <input class="res-form-input" type="number" id="resPersonas" min="1" max="20" value="2"/>
+            </div>
+            <div class="res-form-group res-form-wide">
+              <label class="res-form-label">Notas (opcional)</label>
+              <textarea class="res-form-textarea" id="resNotas" placeholder="Peticiones especiales, tipo de habitación, necesidades…"></textarea>
+            </div>
+          </div>
+          <div id="resMsg" class="form-msg" style="margin-top:10px;"></div>
+        </div>
+
+        <button class="res-confirm-btn" id="btnSaveRes" onclick="saveReservation()">
+          ✅ Confirmar Reserva
+        </button>
+      </div>
+    </div>
+
+    <div class="tab-pane" id="pane-res-lista" style="display:none;flex-direction:column;gap:12px;">
+
+      <!-- Filtros — solo visibles para admin -->
+      <div id="resFiltersWrap" style="display:none;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r14);padding:16px 18px;">
+        <div style="font-size:.7rem;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.8px;margin-bottom:12px;">🔍 Filtrar historial</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <div style="display:flex;flex-direction:column;gap:5px;">
+            <label style="font-size:.68rem;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.6px;">Socio / Referencia</label>
+            <input id="resFiltroSocio" type="text" placeholder="Nombre o código…"
+              style="height:38px;padding:0 12px;border:1.5px solid var(--border);border-radius:9px;font-family:'Outfit',sans-serif;font-size:.85rem;color:var(--text);background:var(--mist);outline:none;box-sizing:border-box;"
+              oninput="applyResFilters()"/>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:5px;">
+            <label style="font-size:.68rem;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.6px;">Estatus</label>
+            <select id="resFiltroEstatus" onchange="applyResFilters()"
+              style="height:38px;padding:0 10px;border:1.5px solid var(--border);border-radius:9px;font-family:'Outfit',sans-serif;font-size:.85rem;color:var(--text);background:var(--mist);outline:none;">
+              <option value="">Todos</option>
+              <option value="pendiente">⏳ Pendiente</option>
+              <option value="aprobada">✅ Aprobada</option>
+              <option value="rechazada">❌ Rechazada</option>
+            </select>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:5px;">
+            <label style="font-size:.68rem;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.6px;">Desde</label>
+            <input id="resFiltroDesde" type="date" onchange="applyResFilters()"
+              style="height:38px;padding:0 12px;border:1.5px solid var(--border);border-radius:9px;font-family:'Outfit',sans-serif;font-size:.85rem;color:var(--text);background:var(--mist);outline:none;box-sizing:border-box;"/>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:5px;">
+            <label style="font-size:.68rem;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.6px;">Hasta</label>
+            <input id="resFiltroHasta" type="date" onchange="applyResFilters()"
+              style="height:38px;padding:0 12px;border:1.5px solid var(--border);border-radius:9px;font-family:'Outfit',sans-serif;font-size:.85rem;color:var(--text);background:var(--mist);outline:none;box-sizing:border-box;"/>
+          </div>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;">
+          <span id="resFilterCount" style="font-size:.75rem;color:var(--sub);font-weight:600;"></span>
+          <button onclick="clearResFilters()"
+            style="font-size:.75rem;font-weight:700;color:var(--royal);background:none;border:none;cursor:pointer;padding:4px 8px;">✕ Limpiar filtros</button>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:8px;align-items:center;justify-content:flex-end;">
+        <button onclick="exportResPDF()" style="background:linear-gradient(135deg,var(--ink),var(--navy));color:white;border:none;border-radius:10px;padding:8px 14px;font-family:'Outfit',sans-serif;font-size:.78rem;font-weight:700;cursor:pointer;">📄 Exportar PDF</button>
+        <button class="refresh-btn" onclick="loadReservations()">🔄 Actualizar</button>
+      </div>
+      <div id="reservationsList" class="log-list">
+        <div class="empty-log"><p>Cargando reservaciones...</p></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="printReservation" style="display:none;padding:40px;font-family:serif;color:black;background:white;">
+  <div style="text-align:center;border-bottom:2px solid #000;padding-bottom:20px;margin-bottom:20px;">
+    <h1 style="margin:0;font-size:24px;">COMPROBANTE DE RESERVACIÓN</h1>
+    <p style="margin:5px 0;">Vacation Club of America</p>
+  </div>
+  <div id="printResContent"></div>
+  <div style="margin-top:60px;display:flex;justify-content:space-between;">
+    <div style="width:200px;border-top:1px solid #000;text-align:center;padding-top:5px;">Firma del Socio</div>
+    <div style="width:200px;border-top:1px solid #000;text-align:center;padding-top:5px;">DPI / Identificación</div>
+  </div>
+  <div style="margin-top:40px;font-size:10px;color:#666;text-align:center;">
+    Este documento es válido únicamente con la firma del socio y presentación de identificación original en el hotel.
+  </div>
+</div>
+
+<div class="screen" id="screenConfig">
+  <div class="report-hero" style="background:linear-gradient(165deg,var(--ink),#1a2a4a);">
+    <div class="report-hero-inner">
+      <div class="report-top-row">
+        <div class="r-logo-pill">
+          <img src="https://vcaofamerica.com/wp-content/uploads/2016/07/logo-png.png" alt="VCA"
+            onerror="this.style.display='none'"/>
+        </div>
+        <button class="back-btn" onclick="showScreen('screenMain')">← Volver</button>
+      </div>
+      <div class="report-hero-text">
+        <h2>⚙️ <em>Configuración</em></h2>
+        <p id="configSubtitle">Gestión de socios y usuarios</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="report-body" id="configBody">
+    <div class="tab-nav" id="configTabNav">
+      <button class="tab-btn active" id="ctab-socios"    onclick="switchConfigTab('socios')">🧾 Socios</button>
+      <button class="tab-btn"        id="ctab-nuevo"     onclick="switchConfigTab('nuevo')">➕ Nuevo Socio</button>
+      <button class="tab-btn"        id="ctab-usuarios"  onclick="switchConfigTab('usuarios')">👥 Usuarios</button>
+      <button class="tab-btn"        id="ctab-log"       onclick="switchConfigTab('log')">📋 Actividad</button>
+    </div>
+
+    <div class="tab-pane active" id="cpane-socios">
+      <div class="section-stack">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="s-lbl">Total socios</div>
+            <div class="s-val" id="socStatTotal">0</div>
+            <div class="s-sub" id="socStatBreakdown">BD + Excel</div>
+          </div>
+          <div class="stat-card">
+            <div class="s-lbl">Activos</div>
+            <div class="s-val" id="socStatActivos" style="color:#2e7d32;">0</div>
+            <div class="s-sub">estado operativo</div>
+          </div>
+          <div class="stat-card">
+            <div class="s-lbl">En mora</div>
+            <div class="s-val" id="socStatMora" style="color:#b53326;">0</div>
+            <div class="s-sub">estado financiero</div>
+          </div>
+          <div class="stat-card">
+            <div class="s-lbl">Próx. vencer</div>
+            <div class="s-val" id="socStatVencer" style="font-size:1.8rem;color:#5c3d00;">0</div>
+            <div class="s-sub">por revisar</div>
+          </div>
+        </div>
+
+        <div class="socios-search-card">
+          <div class="filter-title">🧾 Gestión de socios</div>
+          <div class="filter-row">
+            <div class="filter-group">
+              <label class="filter-lbl">Buscar</label>
+              <input type="text" id="socSearch" placeholder="Código, nombre, DPI, teléfono, email…" oninput="applySociosFilters()"/>
+            </div>
+            <div class="filter-group">
+              <label class="filter-lbl">Tipo membresía</label>
+              <input type="text" id="socTipo" placeholder="Ej: Gold" oninput="applySociosFilters()"/>
+            </div>
+          </div>
+          <div class="filter-row">
+            <div class="filter-group">
+              <label class="filter-lbl">Estado operativo</label>
+              <select id="socEstadoOp" onchange="applySociosFilters()">
+                <option value="">Todos</option>
+                <option value="activo">Activo</option>
+                <option value="inactivo">Inactivo</option>
+                <option value="suspendido">Suspendido</option>
+                <option value="mantenimiento">Mantenimiento</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <label class="filter-lbl">Estado financiero</label>
+              <select id="socEstadoFin" onchange="applySociosFilters()">
+                <option value="">Todos</option>
+                <option value="al_dia">Al día</option>
+                <option value="proximo_vencer">Próximo a vencer</option>
+                <option value="vencido">Vencido</option>
+                <option value="mora">En mora</option>
+              </select>
+            </div>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;gap:10px;flex-wrap:wrap;">
+            <span class="filter-count" id="socCount"></span>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <button class="filter-clear-btn" onclick="clearSociosFilters()">✕ Limpiar</button>
+              <button class="refresh-btn" style="width:auto;" onclick="loadSocios()">🔄 Recargar</button>
+              <button class="refresh-btn" style="width:auto;background:linear-gradient(135deg,#2e7d32,#43a047);color:white;border-color:transparent;" onclick="importExcelToDb()">⬆️ Importar Excel→BD</button>
+              <button class="refresh-btn" style="width:auto;background:linear-gradient(135deg,#283593,#3f51b5);color:white;border-color:transparent;" onclick="exportSociosExcel()">📥 Exportar Excel</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-stack">
+          <div style="display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--mist);border:1.5px solid var(--border);border-radius:var(--r14);font-size:.82rem;color:var(--sub);">
+            <span style="font-size:1.2rem;">➕</span>
+            <span>Para agregar un nuevo socio ve a la pestaña <strong style="color:var(--royal);">➕ Nuevo Socio</strong></span>
+            <button onclick="switchConfigTab('nuevo')" style="margin-left:auto;background:linear-gradient(135deg,var(--navy),var(--sky));color:white;border:none;border-radius:var(--r10);padding:7px 14px;font-size:.76rem;font-weight:700;cursor:pointer;font-family:'Outfit',sans-serif;">Ir →</button>
+          </div>
+
+          <div>
+            <div class="sec-title">Socios registrados</div>
+            <div class="socios-grid" id="sociosList">
+              <div class="socios-empty">Cargando socios…</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="split-two">
+          <div class="socios-detail-card">
+            <h3>👤 Detalle del socio</h3>
+            <div id="socioDetail" class="socios-empty">Selecciona un socio para ver su ficha y sus pagos.</div>
+          </div>
+
+          <div class="socios-pay-card">
+            <h3>💳 Registrar pago</h3>
+            <div class="muted-line" id="payHint">Selecciona un socio para registrar pagos.</div>
+            <div class="socios-pay-grid" style="margin-top:12px;">
+              <div class="form-group"><label>Fecha pago</label><input class="form-input" id="pFecha" type="date"/></div>
+              <div class="form-group"><label>Monto</label><input class="form-input" id="pMonto" type="number" step="0.01" min="0" placeholder="0.00"/></div>
+              <div class="form-group"><label>Método</label><input class="form-input" id="pMetodo" placeholder="Efectivo, tarjeta…"/></div>
+              <div class="form-group"><label>Concepto</label><input class="form-input" id="pConcepto" placeholder="Mensualidad, renovación…"/></div>
+              <div class="form-group"><label>Periodo desde</label><input class="form-input" id="pDesde" type="date"/></div>
+              <div class="form-group"><label>Periodo hasta</label><input class="form-input" id="pHasta" type="date"/></div>
+              <div class="form-group full"><label>Comentario</label><textarea class="note-textarea" id="pComentario" placeholder="Observación del pago"></textarea></div>
+            </div>
+            <div class="form-msg" id="pagoMsg"></div>
+            <div class="socios-actions" style="margin-top:12px;">
+              <button class="form-save-btn" id="pagoSaveBtn" onclick="savePago()">Registrar pago</button>
+              <button class="filter-clear-btn" style="padding:12px 16px;" onclick="loadPagosOfSelected()">Ver historial</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tab-pane" id="cpane-nuevo">
+      <div class="section-stack">
+        <div style="background:linear-gradient(135deg,var(--ink),var(--navy));border-radius:var(--r20);padding:20px 20px 18px;position:relative;overflow:hidden;">
+          <div style="position:absolute;right:-20px;top:-20px;width:100px;height:100px;border-radius:50%;background:rgba(63,81,181,.12);pointer-events:none;"></div>
+          <div style="font-size:.68rem;font-weight:700;color:var(--gold-lt);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Configuración → Socios</div>
+          <div style="font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:700;color:white;">➕ Nuevo Socio</div>
+          <div style="font-size:.74rem;color:rgba(255,255,255,.45);margin-top:3px;">Registra un nuevo socio en la base de datos</div>
+        </div>
+
+        <div class="socios-form" id="sociosFormCard">
+          <h3 id="socioFormTitle">➕ Nuevo socio</h3>
+          <div class="socios-form-grid">
+            <div class="form-group"><label>Código / Referencia</label><input class="form-input" id="sCodigo" placeholder="Ej: VC-1001 o 1-9-16562"/></div>
+            <div class="form-group"><label>Tipo membresía</label><input class="form-input" id="sTipo" placeholder="Ej: Gold, Silver…"/></div>
+            <div class="form-group full"><label>Nombre completo</label><input class="form-input" id="sNombre" placeholder="Nombre completo del socio"/></div>
+            <div class="form-group"><label>DPI / Documento</label><input class="form-input" id="sDpi" placeholder="Número de documento"/></div>
+            <div class="form-group"><label>Teléfono</label><input class="form-input" id="sTelefono" placeholder="Número de teléfono"/></div>
+            <div class="form-group"><label>Correo electrónico</label><input class="form-input" id="sEmail" type="email" placeholder="correo@dominio.com"/></div>
+            <div class="form-group"><label>Fecha de inicio</label><input class="form-input" id="sInicio" type="date"/></div>
+            <div class="form-group"><label>Fecha de vencimiento</label><input class="form-input" id="sVencimiento" type="date"/></div>
+            <div class="form-group"><label>Estado operativo</label>
+              <select class="form-select" id="sEstadoOp">
+                <option value="activo">Activo</option>
+                <option value="inactivo">Inactivo</option>
+                <option value="suspendido">Suspendido</option>
+                <option value="mantenimiento">Mantenimiento</option>
+              </select>
+            </div>
+            <div class="form-group"><label>Estado financiero</label>
+              <select class="form-select" id="sEstadoFin">
+                <option value="al_dia">Al día</option>
+                <option value="proximo_vencer">Próximo a vencer</option>
+                <option value="vencido">Vencido</option>
+                <option value="mora">En mora</option>
+              </select>
+            </div>
+            <div class="form-group full"><label>Dirección</label><input class="form-input" id="sDireccion" placeholder="Dirección completa"/></div>
+            <div class="form-group full"><label>Comentarios / Observaciones</label>
+              <textarea class="note-textarea" id="sComentarios" placeholder="Notas, mora, mantenimiento al día, etc."></textarea>
+            </div>
+          </div>
+          <div class="form-msg" id="socioMsg"></div>
+          <div class="socios-actions" style="margin-top:14px;">
+            <button class="form-save-btn" id="socioSaveBtn" onclick="saveSocio()">💾 Guardar socio</button>
+            <button class="filter-clear-btn" style="padding:12px 16px;" onclick="resetSocioForm()">✕ Limpiar</button>
+          </div>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--mist);border:1.5px solid var(--border);border-radius:var(--r14);font-size:.82rem;color:var(--sub);">
+          <span>¿Quieres ver la lista completa?</span>
+          <button onclick="switchConfigTab('socios')" style="margin-left:auto;background:var(--surface);border:1.5px solid var(--border);color:var(--royal);border-radius:var(--r10);padding:7px 14px;font-size:.76rem;font-weight:700;cursor:pointer;font-family:'Outfit',sans-serif;">🧾 Ver socios →</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="tab-pane" id="cpane-usuarios">
+      <div class="user-form" id="userForm">
+        <h3 id="formTitle">➕ Nuevo usuario</h3>
+        <div class="form-grid">
+          <div class="form-group full">
+            <label>Nombre para mostrar</label>
+            <input class="form-input" type="text" id="fNombre" placeholder="Ej: Garita"/>
+          </div>
+          <div class="form-group full">
+            <label>Correo electrónico</label>
+            <input class="form-input" type="email" id="fEmail" placeholder="usuario@vca.com" autocapitalize="off" autocorrect="off"/>
+          </div>
+          <div class="form-group">
+            <label id="fPassLabel">Contraseña</label>
+            <input class="form-input" type="password" id="fPass" placeholder="Mínimo 6 caracteres"/>
+          </div>
+          <div class="form-group">
+            <label>Rol</label>
+            <select class="form-select" id="fRol">
+              <option value="usuario">Usuario</option>
+              <option value="admin">Admin (Root)</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-msg" id="formMsg"></div>
+        <button class="form-save-btn" id="formSaveBtn" onclick="saveUser()">Crear usuario</button>
+      </div>
+
+      <div class="sec-title">Usuarios registrados</div>
+      <div id="userList"><div class="empty-log"><div class="ei">👤</div><p>Cargando usuarios…</p></div></div>
+    </div>
+
+    <!-- Log de actividad -->
+    <div class="tab-pane" id="cpane-log">
+      <div style="background:var(--surface);border-radius:var(--r20);border:1.5px solid var(--border);box-shadow:var(--sh);overflow:hidden;">
+        <div style="background:linear-gradient(135deg,var(--ink),var(--navy));padding:14px 18px;display:flex;align-items:center;justify-content:space-between;">
+          <div style="font-family:'Cormorant Garamond',serif;font-size:1rem;font-weight:700;color:white;">📋 Registro de actividad</div>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <select id="logFilterUser" onchange="renderLog()" style="height:32px;padding:0 8px;border:1px solid rgba(255,255,255,.2);border-radius:8px;background:rgba(255,255,255,.1);color:white;font-family:'Outfit',sans-serif;font-size:.72rem;font-weight:600;outline:none;">
+              <option value="">Todos los usuarios</option>
+            </select>
+            <button onclick="clearActivityLog()" style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:8px;color:rgba(255,255,255,.7);padding:5px 10px;font-size:.7rem;font-weight:700;cursor:pointer;font-family:'Outfit',sans-serif;">🗑 Limpiar</button>
+          </div>
+        </div>
+        <div id="activityLogList" style="padding:12px 14px;display:flex;flex-direction:column;gap:6px;max-height:500px;overflow-y:auto;"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="screen" id="screenClientLogin">
+  <div class="lock-hero" style="min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:32px 20px;">
+    <div style="width:100%;max-width:400px;display:flex;flex-direction:column;align-items:center;">
+
+      <div style="text-align:center;margin-bottom:28px;display:flex;flex-direction:column;align-items:center;gap:16px;">
+        <div class="lock-logo-frame">
+          <img src="https://vcaofamerica.com/wp-content/uploads/2016/07/logo-png.png" alt="VCA"
+            onerror="this.style.display='none';this.nextElementSibling.style.display='block'"/>
+          <span class="logo-text-fallback" style="display:none;">VCA</span>
+        </div>
+        <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);border-radius:20px;padding:6px 16px;">
+          <span style="font-size:.85rem;">🏨</span>
+          <span style="font-size:.72rem;font-weight:700;color:rgba(255,255,255,.7);text-transform:uppercase;letter-spacing:.8px;">Portal del Socio</span>
+        </div>
+        <div>
+          <h2 style="font-family:'Cormorant Garamond',serif;font-size:1.8rem;font-weight:700;color:white;margin-bottom:4px;">Bienvenido</h2>
+          <p style="font-size:.8rem;color:rgba(255,255,255,.45);margin:0;">Vacation Club of America</p>
+        </div>
+      </div>
+
+      <div style="width:100%;background:var(--surface);border-radius:var(--r20);padding:28px 24px 24px;box-shadow:0 24px 60px rgba(0,0,0,.45);">
+        <div style="font-size:.68rem;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:1px;margin-bottom:18px;text-align:center;">Ingresa tus datos de socio</div>
+
+        <div id="clientLoginMsg" style="display:none;padding:10px 14px;border-radius:10px;font-size:.82rem;font-weight:600;margin-bottom:16px;text-align:center;"></div>
+
+        <div style="display:flex;flex-direction:column;gap:14px;">
+          <div style="display:flex;flex-direction:column;gap:6px;">
+            <label style="font-size:.68rem;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.7px;">Número de referencia</label>
+            <input id="clientRefInput" type="text" placeholder="Ej: 1-9-16562 ó 16562"
+              style="width:100%;height:48px;padding:0 16px;font-family:'Outfit',sans-serif;font-size:.95rem;color:var(--text);background:var(--mist);border:1.5px solid var(--border);border-radius:var(--r10);outline:none;box-sizing:border-box;-webkit-appearance:none;"
+              autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false"
+              onkeydown="if(event.key==='Enter')document.getElementById('clientDpiInput').focus()"/>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:6px;">
+            <label style="font-size:.68rem;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.7px;">DPI / Documento de identidad</label>
+            <input id="clientDpiInput" type="text" placeholder="Número de DPI"
+              style="width:100%;height:48px;padding:0 16px;font-family:'Outfit',sans-serif;font-size:.95rem;color:var(--text);background:var(--mist);border:1.5px solid var(--border);border-radius:var(--r10);outline:none;box-sizing:border-box;-webkit-appearance:none;"
+              autocomplete="off"
+              onkeydown="if(event.key==='Enter')clientLogin()"/>
+          </div>
+
+          <button id="clientLoginBtn" onclick="clientLogin()"
+            style="width:100%;height:52px;background:linear-gradient(135deg,var(--navy),var(--sky));color:white;border:none;border-radius:var(--r14);font-family:'Outfit',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;box-shadow:0 4px 22px rgba(40,53,147,.4);transition:transform .1s;margin-top:2px;"
+            onmousedown="this.style.transform='scale(.98)'" onmouseup="this.style.transform=''">
+            Ingresar al portal
+          </button>
+        </div>
+
+        <p style="font-size:.74rem;color:var(--sub);text-align:center;margin-top:16px;line-height:1.5;">
+          Ingresa con tu número de referencia y DPI registrado.<br>
+          ¿Problemas para ingresar?
+          <a href="https://wa.me/50241008215" target="_blank" rel="noopener" style="color:var(--royal);font-weight:600;text-decoration:none;">Contáctanos</a>
+        </p>
+      </div>
+
+      <button onclick="showScreen('screenLogin')"
+        style="margin-top:20px;background:none;border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.45);font-family:'Outfit',sans-serif;font-size:.78rem;cursor:pointer;border-radius:20px;padding:8px 18px;transition:border-color .15s;"
+        onmouseover="this.style.borderColor='rgba(255,255,255,.3)'" onmouseout="this.style.borderColor='rgba(255,255,255,.15)'">
+        ← Acceso para personal
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="screen" id="screenClientPortal">
+  <div class="main-hero" style="padding-bottom:0;">
+    <div style="position:relative;z-index:2;padding-bottom:32px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+        <div class="logo-frame" style="width:48px;height:48px;border-radius:12px;">
+          <img src="https://vcaofamerica.com/wp-content/uploads/2016/07/logo-png.png" alt="VCA"
+            onerror="this.style.display='none'"/>
+        </div>
+        <button onclick="clientLogout()"
+          style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:white;border-radius:10px;padding:8px 14px;font-family:'Outfit',sans-serif;font-size:.78rem;font-weight:600;cursor:pointer;">
+          Cerrar sesión
+        </button>
+      </div>
+      <div style="font-size:.68rem;font-weight:700;color:var(--gold-lt);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Portal del Socio</div>
+      <h1 style="font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:700;color:white;line-height:1.1;" id="clientPortalName">—</h1>
+      <p style="font-size:.78rem;color:rgba(255,255,255,.45);margin-top:4px;" id="clientPortalRef">—</p>
+      <div style="display:flex;gap:8px;margin-top:16px;">
+        <button class="res-tab-hero-btn active" id="ctab-perfil" onclick="switchClientTab('perfil')">👤 Mi perfil</button>
+        <button class="res-tab-hero-btn" id="ctab-reservar" onclick="switchClientTab('reservar')">🏨 Reservar</button>
+        <button class="res-tab-hero-btn" id="ctab-misres" onclick="switchClientTab('misres')">📋 Mis reservas</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="body-scroll">
+    <div id="cpane-perfil" style="display:flex;flex-direction:column;gap:14px;">
+
+      <div style="background:var(--surface);border-radius:var(--r20);border:1.5px solid var(--border);box-shadow:var(--sh2);overflow:hidden;">
+        <div style="background:linear-gradient(135deg,var(--ink),var(--navy));padding:20px 20px 18px;display:flex;align-items:center;gap:16px;">
+          <div style="position:relative;flex-shrink:0;">
+            <div id="clientAvatarWrap" style="width:68px;height:68px;border-radius:50%;border:3px solid rgba(255,255,255,.25);overflow:hidden;background:linear-gradient(135deg,#283593,#3f51b5);display:flex;align-items:center;justify-content:center;cursor:pointer;" onclick="document.getElementById('clientPhotoInput').click()">
+              <img id="clientAvatarImg" src="" alt="" style="width:100%;height:100%;object-fit:cover;display:none;"/>
+              <span id="clientAvatarInitial" style="font-size:1.6rem;font-weight:800;color:white;"></span>
+            </div>
+            <div onclick="document.getElementById('clientPhotoInput').click()" style="position:absolute;bottom:0;right:0;width:22px;height:22px;background:var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:.65rem;box-shadow:0 2px 6px rgba(0,0,0,.3);">📷</div>
+            <input type="file" id="clientPhotoInput" accept="image/*" style="display:none;" onchange="handleClientPhoto(this)"/>
+          </div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:.65rem;font-weight:700;color:var(--gold-lt);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px;">Mi perfil</div>
+            <div style="font-family:'Cormorant Garamond',serif;font-size:1.15rem;font-weight:700;color:white;line-height:1.2;" id="clientProfileName">—</div>
+            <div style="font-size:.75rem;color:rgba(255,255,255,.5);margin-top:2px;" id="clientProfileCode">—</div>
+          </div>
+          <div id="clientProfileBadge"></div>
+        </div>
+        <div style="padding:16px 20px;display:grid;grid-template-columns:1fr 1fr;gap:10px;" id="clientProfileData"></div>
+      </div>
+
+      <div style="background:var(--surface);border-radius:var(--r20);border:1.5px solid var(--border);box-shadow:var(--sh2);overflow:hidden;">
+        <div style="background:linear-gradient(135deg,#166842,#2e7d32);padding:14px 20px 12px;">
+          <div style="font-size:.68rem;font-weight:700;color:rgba(255,255,255,.6);text-transform:uppercase;letter-spacing:1px;margin-bottom:2px;">Historial financiero</div>
+          <div style="font-family:'Cormorant Garamond',serif;font-size:1rem;font-weight:700;color:white;">Estado de pagos</div>
+        </div>
+        <div style="padding:16px 20px;display:grid;grid-template-columns:1fr 1fr;gap:10px;" id="clientPaymentData"></div>
+      </div>
+
+      <!-- Historial de pagos registrados -->
+      <div style="background:var(--surface);border-radius:var(--r20);border:1.5px solid var(--border);box-shadow:var(--sh2);overflow:hidden;">
+        <div style="background:linear-gradient(135deg,#1a237e,#283593);padding:14px 20px 12px;display:flex;align-items:center;justify-content:space-between;">
+          <div>
+            <div style="font-size:.68rem;font-weight:700;color:rgba(255,255,255,.6);text-transform:uppercase;letter-spacing:1px;margin-bottom:2px;">Mis pagos</div>
+            <div style="font-family:'Cormorant Garamond',serif;font-size:1rem;font-weight:700;color:white;">Historial de pagos</div>
+          </div>
+          <button onclick="loadClientPagos()" style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);border-radius:8px;color:white;padding:5px 11px;font-size:.72rem;font-weight:700;cursor:pointer;font-family:'Outfit',sans-serif;">🔄 Actualizar</button>
+        </div>
+        <div id="clientPagosList" style="padding:14px 16px;display:flex;flex-direction:column;gap:8px;">
+          <div class="socios-empty" style="padding:18px 0;">⏳ Cargando pagos…</div>
+        </div>
+      </div>
+
+      <a id="clientWaBtn" href="https://wa.me/50241008215" target="_blank" rel="noopener"
+        style="display:flex;align-items:center;justify-content:center;gap:10px;padding:15px 20px;background:#25d366;border:none;border-radius:var(--r14);color:white;font-family:'Outfit',sans-serif;font-size:.92rem;font-weight:700;text-decoration:none;box-shadow:0 4px 16px rgba(37,211,102,.35);">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.126 1.532 5.855L.063 23.064a.75.75 0 0 0 .914.914l5.255-1.47A11.952 11.952 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.853 0-3.587-.502-5.077-1.38l-.361-.214-3.741 1.046 1.046-3.741-.214-.361A9.958 9.958 0 0 1 2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
+        WhatsApp Atención al Cliente
+      </a>
+
+      <a id="clientEmailBtn" href="mailto:cashrnndz@gmail.com" target="_blank" rel="noopener"
+        style="display:flex;align-items:center;justify-content:center;gap:10px;padding:15px 20px;background:linear-gradient(135deg,var(--ink),var(--navy));border:none;border-radius:var(--r14);color:white;font-family:'Outfit',sans-serif;font-size:.92rem;font-weight:700;text-decoration:none;box-shadow:0 4px 16px rgba(10,22,40,.25);">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+        Escribir por Correo
+      </a>
+    </div>
+
+    <div id="cpane-reservar" style="display:none;flex-direction:column;gap:14px;">
+      <div style="background:var(--surface);border-radius:var(--r20);border:1.5px solid var(--border);box-shadow:var(--sh2);overflow:hidden;">
+        <div style="background:linear-gradient(135deg,var(--ink),var(--navy));padding:16px 20px 14px;">
+          <div style="font-size:.68rem;font-weight:700;color:var(--gold-lt);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px;">Nueva solicitud</div>
+          <div style="font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:700;color:white;">🏨 Reservar hospedaje</div>
+        </div>
+        <div style="padding:20px;">
+          <div id="clientResMsg" style="display:none;padding:10px 14px;border-radius:10px;font-size:.82rem;font-weight:600;margin-bottom:14px;"></div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <div style="grid-column:1/-1;">
+              <label style="font-size:.68rem;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.7px;display:block;margin-bottom:5px;">Tipo</label>
+              <div class="tipo-selector" style="grid-template-columns:1fr 1fr;">
+                <button class="tipo-btn active" data-tipo="Hospedaje" onclick="clientSelectTipo(this)">
+                  <span class="tipo-icon">🏨</span><span class="tipo-label">Hospedaje</span><span class="tipo-sub">Estadía con noche</span>
+                </button>
+                <button class="tipo-btn" data-tipo="Day Pass" onclick="clientSelectTipo(this)">
+                  <span class="tipo-icon">☀️</span><span class="tipo-label">Day Pass</span><span class="tipo-sub">Acceso por el día</span>
+                </button>
+              </div>
+            </div>
+
+            <div style="grid-column:1/-1;">
+              <label style="font-size:.68rem;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.7px;display:block;margin-bottom:5px;">Hotel</label>
+              <div class="hotel-grid">
+                <button class="hotel-card active" onclick="clientSelectHotel(this,'Amatique Bay Hotel')">
+                  <div class="hotel-icon">🏖️</div><div class="hotel-name">Amatique Bay</div><div class="hotel-sub">Puerto Barrios</div>
+                </button>
+                <button class="hotel-card" onclick="clientSelectHotel(this,'Clarion Suite')">
+                  <div class="hotel-icon">🏙️</div><div class="hotel-name">Clarion Suite</div><div class="hotel-sub">Guatemala</div>
+                </button>
+                <button class="hotel-card" onclick="clientSelectHotel(this,'Cayman Suite')">
+                  <div class="hotel-icon">🌊</div><div class="hotel-name">Cayman Suite</div><div class="hotel-sub">Livingston</div>
+                </button>
+              </div>
+              <input type="hidden" id="clientResHotel" value="Amatique Bay Hotel"/>
+            </div>
+
+            <div>
+              <label style="font-size:.68rem;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.7px;display:block;margin-bottom:5px;">Fecha de entrada</label>
+              <input id="clientResFecha" type="date" class="res-form-input" style="width:100%;"/>
+            </div>
+            <div id="clientResFechaSalidaGroup">
+              <label style="font-size:.68rem;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.7px;display:block;margin-bottom:5px;">Fecha de salida</label>
+              <input id="clientResFechaSalida" type="date" class="res-form-input" style="width:100%;"/>
+            </div>
+            <div>
+              <label style="font-size:.68rem;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.7px;display:block;margin-bottom:5px;">N° de personas</label>
+              <input id="clientResPersonas" type="number" min="1" max="20" value="2" class="res-form-input" style="width:100%;"/>
+            </div>
+            <div style="grid-column:1/-1;">
+              <label style="font-size:.68rem;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.7px;display:block;margin-bottom:5px;">Notas / Peticiones especiales</label>
+              <textarea id="clientResNotas" class="res-form-textarea" placeholder="Tipo de habitación, necesidades especiales…" style="width:100%;height:80px;resize:vertical;"></textarea>
+            </div>
+
+            <!-- Acompañantes (opcional) -->
+            <div style="grid-column:1/-1;">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+                <label style="font-size:.68rem;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.7px;">👥 Acompañantes <span style="font-weight:400;text-transform:none;letter-spacing:0;">(opcional)</span></label>
+                <button type="button" onclick="addGuestRow()"
+                  style="font-size:.72rem;font-weight:700;color:var(--royal);background:rgba(21,73,160,.08);border:1.5px solid rgba(21,73,160,.2);border-radius:8px;padding:4px 10px;cursor:pointer;">+ Agregar</button>
+              </div>
+              <div id="guestsList" style="display:flex;flex-direction:column;gap:8px;"></div>
+              <div style="font-size:.7rem;color:var(--sub);margin-top:6px;line-height:1.4;">Agrega el nombre y DPI de cada persona que ingresará. Este dato es opcional pero agiliza el registro en el hotel.</div>
+            </div>
+          </div>
+
+          <div style="margin-top:8px;padding:12px 14px;background:#fffbec;border:1.5px solid #f0d880;border-radius:12px;font-size:.78rem;color:#7a5800;line-height:1.5;">
+            ⏳ Tu solicitud quedará <strong>pendiente de aprobación</strong> por administración.<br>
+            Tienes <strong>48 horas</strong> para recibir confirmación antes de que expire.
+          </div>
+
+          <button id="clientResSaveBtn" onclick="clientSaveReservation()"
+            style="margin-top:14px;width:100%;height:50px;background:linear-gradient(135deg,var(--navy),var(--sky));color:white;border:none;border-radius:var(--r14);font-family:'Outfit',sans-serif;font-size:.95rem;font-weight:700;cursor:pointer;box-shadow:0 4px 18px rgba(21,73,160,.35);">
+            📨 Enviar solicitud de reserva
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div id="cpane-misres" style="display:none;flex-direction:column;gap:12px;">
+      <div id="clientResList">
+        <div class="empty-log"><div class="ei">📋</div><p>Cargando tus reservas…</p></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="modalChangePass" style="display:none;position:fixed;inset:0;z-index:10000;background:rgba(4,13,30,.65);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:20px;">
+  <div style="background:var(--surface);border-radius:var(--r20);width:100%;max-width:400px;box-shadow:0 20px 60px rgba(0,0,0,.4);overflow:hidden;animation:popIn .25s cubic-bezier(.22,1,.36,1);">
+    <div style="background:linear-gradient(135deg,var(--ink),var(--navy));padding:20px 22px 18px;position:relative;">
+      <div style="font-size:.68rem;font-weight:700;color:var(--gold-lt);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Seguridad</div>
+      <div style="font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:700;color:white;" id="cpModalTitle">🔑 Cambiar contraseña</div>
+      <button onclick="closeChangePassModal()" style="position:absolute;top:16px;right:16px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);color:white;border-radius:8px;padding:5px 10px;cursor:pointer;font-size:.85rem;font-family:'Outfit',sans-serif;">✕</button>
+    </div>
+    <div style="padding:22px;">
+      <div id="cpModalSubtitle" style="font-size:.8rem;color:var(--sub);margin-bottom:16px;line-height:1.5;"></div>
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <div style="display:flex;flex-direction:column;gap:5px;">
+          <label style="font-size:.68rem;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.7px;">Nueva contraseña</label>
+          <input id="cpNewPass" type="password" placeholder="Mínimo 6 caracteres"
+            style="height:44px;padding:0 14px;font-family:'Outfit',sans-serif;font-size:.9rem;color:var(--text);background:var(--mist);border:1.5px solid var(--border);border-radius:var(--r10);outline:none;width:100%;-webkit-appearance:none;"
+            oninput="this.style.borderColor='var(--border)'"
+            onkeydown="if(event.key==='Enter')doChangePass()"/>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:5px;">
+          <label style="font-size:.68rem;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.7px;">Confirmar contraseña</label>
+          <input id="cpConfirmPass" type="password" placeholder="Repite la contraseña"
+            style="height:44px;padding:0 14px;font-family:'Outfit',sans-serif;font-size:.9rem;color:var(--text);background:var(--mist);border:1.5px solid var(--border);border-radius:var(--r10);outline:none;width:100%;-webkit-appearance:none;"
+            oninput="this.style.borderColor='var(--border)'"
+            onkeydown="if(event.key==='Enter')doChangePass()"/>
+        </div>
+        <div id="cpMsg" style="font-size:.8rem;font-weight:600;padding:8px 12px;border-radius:8px;display:none;"></div>
+        <button id="cpBtn" onclick="doChangePass()"
+          style="height:50px;background:linear-gradient(135deg,var(--navy),var(--sky));color:white;border:none;border-radius:var(--r14);font-family:'Outfit',sans-serif;font-size:.92rem;font-weight:700;cursor:pointer;box-shadow:0 4px 18px rgba(21,73,160,.35);transition:transform .1s;">
+          Actualizar contraseña
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+  <!-- Módulos de aplicación -->
+  <script src="js/config.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/notes.js"></script>
+  <script src="js/search.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/reservations.js"></script>
+  <script src="js/report.js"></script>
+  <script src="js/socios.js"></script>
+  <script src="js/dashboard.js"></script>
+  <script src="js/portal.js"></script>
+</body>
+</html>
